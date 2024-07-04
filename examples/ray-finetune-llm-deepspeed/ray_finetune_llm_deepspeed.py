@@ -11,6 +11,7 @@ import tree
 from typing import Tuple
 import urllib
 from urllib.parse import urljoin
+import pyarrow.fs
 
 try:
     import deepspeed  # noqa: F401
@@ -685,6 +686,13 @@ def main():
     if args.lora:
         trial_name += "-lora"
 
+    # Set up your own file system as shown in https://docs.ray.io/en/latest/train/user-guides/persistent-storage.html#custom-storage
+    fs = pyarrow.fs.S3FileSystem(
+        endpoint_override="https://endpoint",
+        access_key="your_access_key",
+        secret_key="your_secret_key"
+    )
+
     trainer = TorchTrainer(
         training_function,
         train_loop_config={
@@ -693,6 +701,7 @@ def main():
             "special_tokens": special_tokens,
         },
         run_config=train.RunConfig(
+            storage_filesystem=fs,
             storage_path=urljoin(args.storage_path, args.model_name),
             checkpoint_config=train.CheckpointConfig(
                 num_to_keep=args.num_checkpoints_to_keep,
