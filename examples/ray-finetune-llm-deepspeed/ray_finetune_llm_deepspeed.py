@@ -688,9 +688,9 @@ def main():
 
     # Set up your own file system as shown in https://docs.ray.io/en/latest/train/user-guides/persistent-storage.html#custom-storage
     fs = pyarrow.fs.S3FileSystem(
-        endpoint_override="https://endpoint",
-        access_key="your_access_key",
-        secret_key="your_secret_key"
+        endpoint_override=os.environ.get('AWS_S3_ENDPOINT'),
+        access_key=os.environ.get('AWS_ACCESS_KEY_ID'),
+        secret_key=os.environ.get('AWS_SECRET_ACCESS_KEY')
     )
 
     trainer = TorchTrainer(
